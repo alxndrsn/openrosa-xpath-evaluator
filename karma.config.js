@@ -8,7 +8,7 @@ module.exports = function(config) {
     basePath: '',
 
 
-    plugins: ['karma-mocha', 'karma-requirejs', 'karma-chai', 'karma-firefox-launcher'],
+    plugins: ['karma-mocha', 'karma-requirejs', 'karma-chai', 'karma-chrome-launcher', 'karma-firefox-launcher'],
 
 
     // frameworks to use
