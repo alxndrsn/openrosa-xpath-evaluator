@@ -74,7 +74,7 @@ module.exports = function(config) {
     singleRun: false
   }
 
-  if (process.env.TRAVIS) cfg.browsers = ['Chrome_travis_ci'];
+  if (process.env.TRAVIS) cfg.browsers = ['Firefox'];//['Chrome_travis_ci'];
 
   config.set(cfg);
 }
