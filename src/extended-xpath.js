@@ -71,12 +71,16 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         return toSnapshotResult(r, rt);
       }
 
-      if(!r.t && Array.isArray(r)) {
+      // There follow two different interpretations of an array.  TODO test if the old version can be deleted without breaking things
+      if((!r.t && Array.isArray(r)) || // why would 'r' ever be an array??  Why would it ever not be an array?!?!?!
+          r.t === 'arr') {
+        const stringValue = (r.t ? r.v[0] : (r.length && r[0].textContent)) || ''; // weird old behaviour here - previously it would use `textContent` for NUMBER_TYPE arrays, and the plain string for STRING_TYPE arrays.  This may have been a bug, but worth trying to add a test case to prove that the new behaviour is more correct... or just being a bit more simple with what we're changing
+
         if(rt === XPathResult.NUMBER_TYPE) {
-          var v = parseInt(r[0].textContent);
-          return { resultType:XPathResult.NUMBER_TYPE, numberValue:v, stringValue:v.toString() };
+          const numberValue = parseInt(stringValue);
+          return { resultType:XPathResult.NUMBER_TYPE, stringValue, numberValue };
         } else if(rt === XPathResult.STRING_TYPE) {
-          return { resultType:XPathResult.STRING_TYPE, stringValue: r.length ? r[0] : '' };
+          return { resultType:XPathResult.STRING_TYPE, stringValue };
         }
       }
 
@@ -298,7 +302,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       handleXpathExpr = function(returnType) {
         var expr = cur.v;
         var evaluated;
-        if(['position'].includes(peek().v)) {
+        if(['position'].includes(peek().v)) { // this looks unnecessarily complicated
           evaluated = wrapped(expr);
         } else {
           if(rT > 3 || (cur.v.indexOf('position()=') >= 0 &&

@@ -11,7 +11,7 @@ function isNumber(value) {
 
 function handleOperation(lhs, op, rhs, config) {
   //Removes quotes for numbers, detect and convert date/datetime strings
-  if(op.v === '+' ) {
+  if(op.v === '+' ) { // why wouldn't this apply to other maths operators?
     // Operands will always be converted to numbers, no concatenation.
     if (lhs.t === 'arr'){
       // only take first of nodeset
