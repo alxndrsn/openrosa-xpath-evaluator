@@ -15,11 +15,11 @@ function handleOperation(lhs, op, rhs, config) {
     // Operands will always be converted to numbers, no concatenation.
     if (lhs.t === 'arr'){
       // only take first of nodeset
-      lhs = {t: 'num', v: lhs.v[0]}
+      lhs = {t: 'num', v: lhs.v[0]};
     }
     if (rhs.t === 'arr'){
       // only take first of nodeset
-      rhs = {t: 'num', v: rhs.v[0]}
+      rhs = {t: 'num', v: rhs.v[0]};
     }
     if (/^[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(lhs.v)) {
       lhs.v = dateToDays(lhs.v, false);
