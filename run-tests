@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+script -q -c './node_modules/.bin/karma start --single-run' |
+    tee >(grep ✖ |
+        sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" > predicates-test.result)
