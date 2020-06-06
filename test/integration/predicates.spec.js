@@ -17,10 +17,10 @@ describe.only('predicates with function calls', ()=> {
         initDoc(`
           <data>
             <item>
-            <number>4</number>
+              <number>4</number>
             </item>
             <item>
-            <number>6</number>
+              <number>6</number>
             </item>
             <b/>
             <b/>
@@ -43,10 +43,10 @@ describe.only('predicates with function calls', ()=> {
         initDoc(`
           <data>
             <item>
-            <number>4</number>
+              <number>4</number>
             </item>
             <item>
-            <number>6</number>
+              <number>6</number>
             </item>
           </data>
         `);
@@ -60,9 +60,9 @@ describe.only('predicates with function calls', ()=> {
   it('with the #selected function', () => {
     initDoc(`
       <data>
-      <a>a</a>
-      <a>b</a>
-      <a>c</a>
+        <a>a</a>
+        <a>b</a>
+        <a>c</a>
       </data>
     `);
 
