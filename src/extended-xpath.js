@@ -302,7 +302,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       handleXpathExpr = function(returnType) {
         var expr = cur.v;
         var evaluated;
-        if(['position'].includes(peek().v)) { // this looks unnecessarily complicated
+        if(['position'].includes(peek().v)) { // this looks unnecessarily complicated... and FIXME potentially quite dangerous if e.g. 'position' is included as a DOM path or something
           evaluated = wrapped(expr);
         } else {
           if(rT > 3 || (cur.v.indexOf('position()=') >= 0 &&
