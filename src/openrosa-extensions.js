@@ -412,11 +412,10 @@ var openrosa_xpath_extensions = function(config) {
       var rt = arguments[arguments.length - 1];
 
       if(rt === XPathResult.BOOLEAN_TYPE) {
-        return XPR.boolean(r.v.length > 0 ? true : false);
+        return XPR.boolean(r.v.length > 0);
       }
       if(rt === XPathResult.STRING_TYPE) {
-        if (r.v.length < 1) return '';
-        return XPR.string(r.v[0]);
+        return XPR.string(r.v[0] || ''); // TODO I suspect there is a bug in the current orxe2 code relating to this line
       }
 
       // nodes as seed
