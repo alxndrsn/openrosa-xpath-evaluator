@@ -48,6 +48,8 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       return { t:'str', v:r.stringValue };
     },
     toExternalResult = function(r, rt) {
+      dbg('toExternalResult()', { r, rt });
+
       if(extendedProcessors.toExternalResult) {
         var res = extendedProcessors.toExternalResult(r);
         if(res) return res;
@@ -75,7 +77,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       // There follow two different interpretations of an array.  TODO test if the old version can be deleted without breaking things
       if((!r.t && Array.isArray(r)) || // why would 'r' ever be an array??  Why would it ever not be an array?!?!?!
           r.t === 'arr') {
-        const stringValue = (r.t ? r.v[0] : (r.length && r[0].textContent)) || ''; // weird old behaviour here - previously it would use `textContent` for NUMBER_TYPE arrays, and the plain string for STRING_TYPE arrays.  This may have been a bug, but worth trying to add a test case to prove that the new behaviour is more correct... or just being a bit more simple with what we're changing
+        const stringValue = (r.t ? r.v[0] && r.v[0].t ? r.v[0].v : r.v[0] : (r.length && r[0].textContent)) || ''; // weird old behaviour here - previously it would use `textContent` for NUMBER_TYPE arrays, and the plain string for STRING_TYPE arrays.  This may have been a bug, but worth trying to add a test case to prove that the new behaviour is more correct... or just being a bit more simple with what we're changing.  Ah no, this is actually a real XPathResult(?)
 
         if(rt === XPathResult.NUMBER_TYPE) {
           const numberValue = parseInt(stringValue);
@@ -575,9 +577,12 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
             } else if(arg.v[0].t === 'bool') {
               dbg('arr:', { arg, vals:arg.v.map(o => o.v) });
               tail.v += 1 + arg.v.map(o => o.v).indexOf(true);
+            } else if(typeof arg.v[0] === 'bool') {
+              dbg('arr:', { arg, vals:arg.v });
+              tail.v += 1 + arg.v.indexOf(true);
             } else {
               // TODO who knows?  Use the first tiem
-              tail.v += arg.v[0]
+              tail.v += arg.v[0] ? arg.v[0].t ? arg.v[0].v : arg.v[0] : '';
             }
           } else {
             tail.v += arg.v;

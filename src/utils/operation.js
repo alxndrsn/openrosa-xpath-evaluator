@@ -29,9 +29,9 @@ function handleOperation(lhs, op, rhs, config) {
 
   // TODO here we need to map arrays to arrays of results
   if(lhs.t === 'arr') {
-    const ret = lhs.v.map(v => handleOperation(v, op, rhs, config));
-    dbg('handleOperation()', { ret });
-    return ret;
+    if(!lhs.v.length) return [];
+    if(lhs.v[0].t) return lhs.v.map(v => handleOperation(v, op, rhs, config));
+    return lhs.v.map(v => handleOperation({ t:'num', v }, op, rhs, config));
   }
   if(rhs.t === 'arr') {
     const ret = rhs.v.map(v => handleOperation(lhs, op, v, config));
