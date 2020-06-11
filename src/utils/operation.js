@@ -9,7 +9,46 @@ function isNumber(value) {
   return typeof value === 'number';
 }
 
+function element2num(e) {
+  return { t:'num', v:parseFloat(e.innerHTML) };
+}
+
+// TODO should nodes really get this far in the first place?  If we use SNAPSHOT_ITERATORs, and convert them to t:'arr' we might simplify things
+function flattenNodes(nodes) {
+  const arr = [];
+  nodes.map(node => {
+    if(Array.isArray(node)) {
+      arr.push(...node.map(element2num));
+    } else arr.push(element2num(node));
+  });
+  return arr;
+}
+
 function handleOperation(lhs, op, rhs, config) {
+  dbg('handleOperation()', { lhs, op, rhs });
+
+  // TODO here we need to map arrays to arrays of results
+  if(lhs.t === 'arr') {
+    const ret = lhs.v.map(v => handleOperation(v, op, rhs, config));
+    dbg('handleOperation()', { ret });
+    return ret;
+  }
+  if(rhs.t === 'arr') {
+    const ret = rhs.v.map(v => handleOperation(lhs, op, v, config));
+    dbg('handleOperation()', { ret });
+    return ret;
+  }
+  if(Array.isArray(lhs)) {
+    const ret = flattenNodes(lhs).map(v => handleOperation(v, op, rhs, config));
+    dbg('handleOperation()', { ret });
+    return ret;
+  }
+  if(Array.isArray(rhs)) {
+    const ret = flattenNodes(rhs).map(v => handleOperation(lhs, op, v, config));
+    dbg('handleOperation()', { ret });
+    return ret;
+  }
+
   //Removes quotes for numbers, detect and convert date/datetime strings
   if(op.v === '+' ) { // why wouldn't this apply to other maths operators?
     // Operands will always be converted to numbers, no concatenation.
@@ -258,3 +297,7 @@ function handleOperation(lhs, op, rhs, config) {
 module.exports = {
   handleOperation
 };
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}

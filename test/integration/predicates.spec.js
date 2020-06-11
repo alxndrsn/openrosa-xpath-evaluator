@@ -2,17 +2,18 @@ const { assertNumberValue, assertStringValue, assertTrue, initDoc } = require('.
 
 describe.only('predicates with function calls', ()=> {
 
-  describe('with native functions', () => {
+  describe.only('with native functions', () => {
     [
-      [ 'count(/data/item[true()]) = 2',   assertTrue ],
-      [ 'count(/data/b[round(2.44) = 2])', assertNumberValue, 2 ],
-      [ '/data/item[true()]/number',       assertNumberValue, 4 ],
+      //[ 'count(/data/item[true()]) = 2',   assertTrue ],
+      //[ 'count(/data/b[round(2.44) = 2])', assertNumberValue, 2 ],
+      //[ '/data/item[true()]/number',       assertNumberValue, 4 ],
+      //[ '/data/item[2]/number',            assertNumberValue, 6 ],
       [ '/data/item[true()]/number + 1',   assertNumberValue, 5 ],
-      [ '/data/item[true()]/number + 1',   assertStringValue, '5' ],
-      [ '/data/item[string-length("a") = 1]/number + 2',    assertNumberValue, 6 ],
-      [ '/data/item[2]/number + 3',                         assertNumberValue, 9 ],
-      [ '/data/item[string-length(./number)=1]/number + 3', assertNumberValue, 7 ],
-      [ '/data/item[(./number div 3.14) > 1.9]/number',     assertNumberValue, 6 ],
+      //[ '/data/item[true()]/number + 1',   assertStringValue, '5' ],
+      //[ '/data/item[string-length("a") = 1]/number + 2',    assertNumberValue, 6 ],
+      //[ '/data/item[2]/number + 3',                         assertNumberValue, 9 ],
+      //[ '/data/item[string-length(./number)=1]/number + 3', assertNumberValue, 7 ],
+      //[ '/data/item[(./number div 3.14) > 1.9]/number',     assertNumberValue, 6 ],
     ].forEach(([ expr, assertion, ...extraArgs ]) => {
       it(`should evaluate ${expr} as expected`, () => {
         initDoc(`
@@ -61,7 +62,7 @@ describe.only('predicates with function calls', ()=> {
   });
 
   // I put this one separate as it has a different 'too many args' error, and there may be multiple causes for failure
-  it.only('with the #selected function', () => {
+  it('with the #selected function', () => {
     initDoc(`
       <data>
         <a>a</a>

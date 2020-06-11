@@ -17,10 +17,11 @@ function toSnapshotResult(nodes, rt, singleItem) {
     var idx = 0;
     return {
       resultType: rt,
-      singleNodeValue: nodes.length ? singleItem || nodes[0] : null,
+      singleNodeValue: nodes.length ? singleItem || nodes[0] : null, // TODO prob just: return nodes[0];
       snapshotLength: nodes.length,
       snapshotItem: function(i){return nodes[i];},
       iterateNext: function(){return nodes.length > idx ? nodes[idx++] : null;}
+      // TODO this could probably be rewritten without any bounds check, i.e.: return nodes[idx++];
     };
   }();
 }
