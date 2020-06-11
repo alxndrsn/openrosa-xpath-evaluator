@@ -1,5 +1,4 @@
-✖ 4 tests failed
+✖ 3 tests failed
     ✖ with the #selected function
-      ✖ should evaluate /data/item[pi() > 3]/number as expected
-      ✖ should evaluate /data/item[tan(./number) > 1]/number as expected
-      ✖ should evaluate /data/item[(./number div pi()) > 1.9]/number as expected
+      ✖ should evaluate /data/item[string-length(./number)=1]/number + 3 as expected
+      ✖ should evaluate /data/item[(./number div 3.14) > 1.9]/number as expected

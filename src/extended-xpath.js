@@ -87,6 +87,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       return { resultType:XPathResult.STRING_TYPE, stringValue: r.v===null ? '' : r.v.toString() };
     },
     callFn = function(name, args, rt) {
+      dbg('callFn()', { name, args, rt });
       if(extendedFuncs.hasOwnProperty(name)) {
         // if(rt && (/^(date|true|false|now$|today$|randomize$)/.test(name))) args.push(rt);
         if(rt && (/^(date|now$|today$|randomize$)/.test(name))) args.push(rt);
@@ -115,12 +116,17 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       return callNative(name, preprocessNativeArgs(name, args));
     },
     callExtended = function(name, args) {
+      dbg('callExtended()', { name, args });
       var argVals = [], res, i;
+      dbg('callExtended()', { name, args, argVals });
       for(i=0; i<args.length; ++i) argVals.push(args[i]);
+      dbg('callExtended()', { name, args, argVals });
       res = extendedFuncs[name].apply(null, argVals);
+      dbg('callExtended()', { name, args, argVals, res });
       return res;
     },
     callNative = function(name, args) {
+      dbg('callNative()', { name, args });
       var argString = '', arg, quote, i;
       for(i=0; i<args.length; ++i) {
         arg = args[i];
@@ -286,6 +292,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         }
       },
       backtrack = function() {
+        dbg('backtrack()', { cur, stack });
         // handle infix operators
         var i, j, ops, tokens;
         tokens = peek().tokens;
@@ -300,6 +307,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         }
       },
       handleXpathExpr = function(returnType) {
+        dbg('handleXpathExpr()', { returnType, cur, stack });
         var expr = cur.v;
         var evaluated;
         if(['position'].includes(peek().v)) { // this looks unnecessarily complicated... and FIXME potentially quite dangerous if e.g. 'position' is included as a DOM path or something
@@ -339,6 +347,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 
     for(i=0; i<input.length; ++i) {
       var c = input.charAt(i);
+      dbg({ c, cur, stack });
       if(cur.sq) {
         cur.v += c;
         if(c === ']') --cur.sq;
@@ -415,7 +424,9 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
             const res = callFn(cur.v, cur.tokens, expectedReturnType);
             if(cur.v === 'node' && res.t === 'arr' && res.v.length > 0)
               res.v = [res.v[0]]; // only interested in first element
+            dbg('peeking...', { stack });
             peek().tokens.push(res);
+            dbg('peeked.');
           } else {
             if(cur.tokens.length !== 1) err();
             peek().tokens.push(cur.tokens[0]);
@@ -506,8 +517,32 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           }
           break;
         case '[':
-          cur.sq = (cur.sq || 0) + 1;
-          /* falls through */
+          dbg({ cur, stack });
+          cur.v += c;
+          cur.t = 'sq';
+          cur.tokens = [];
+          stack.push(cur);
+          dbg({ cur, stack });
+          newCurrent();
+          dbg({ cur, stack });
+          break;
+        case ']': {
+          // TODO evaluate what's in the square brackets, and then get back up the stack
+          dbg({ c, cur, stack });
+          // XXX
+          const tail = peek();
+          if(tail.tokens.length === 0) err('No tokens.');
+          if(tail.tokens.length >= 3) backtrack();
+          if(tail.tokens.length > 1) err('Too many tokens.');
+          dbg({ c, cur, tail, stack });
+          const arg = tail.tokens[0];
+          tail.v += arg.v;
+          if(arg.t === 'bool') tail.v += '()';
+          tail.v += ']';
+          delete tail.tokens;
+          tail.t = '?';
+          cur = stack.pop();
+        } break;
         case '.':
           if(cur.v === '' && nextChar() === ')') {
             cur.v = c;
@@ -536,3 +571,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 };
 
 module.exports = ExtendedXPathEvaluator;
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}

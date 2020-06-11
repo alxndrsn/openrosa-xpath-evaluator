@@ -32,6 +32,7 @@ function checkNativeFn(name, args) {
 }
 
 function preprocessNativeArgs(name, args) {
+  dbg('preprocessNativeArgs()', { name, args });
   if(name === 'number' && args.length) {
     if(args[0].t === 'arr') {
       args = [{t: 'num', v: args[0].v[0]}];
@@ -70,3 +71,7 @@ module.exports = {
   isNativeFunction,
   preprocessNativeArgs
 };
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}
