@@ -193,13 +193,24 @@ describe('some complex examples', () => {
     "'some-value' =../some-path": false,
     "'some-value' = ../some-path": false,
 
+    // number formats
+    '1': 1,
+    '10e10': 100000000000,
+    '10e-1': 1, // confirm, but I don't think scientific notation is supported in the XPath spec
+    '0e0e0e0e0e0': 0, // N.B. this is what javascript does; I don't think this matches the XPath spec
+
   }, (matcher, expression) => {
     it('should convert "' + expression + '" to match "' + matcher + '"', () => {
       var evaluated = doc.xEval(expression);
 
       switch(typeof matcher) {
         case 'boolean': return assert.equal(evaluated.booleanValue, matcher);
-        case 'number': return assert.equal(evaluated.numberValue, matcher);
+        case 'number': {
+          if(Number.isNaN(matcher)) {
+            return assert.isNaN(evaluated.numberValue);
+          }
+          return assert.equal(evaluated.numberValue, matcher);
+        }
         case 'string': return assert.equal(evaluated.stringValue, matcher);
         default: assert.match(evaluated.stringValue, matcher);
       }
