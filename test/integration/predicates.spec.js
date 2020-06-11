@@ -2,7 +2,7 @@ const { assertNumberValue, assertStringValue, assertTrue, initDoc } = require('.
 
 describe.only('predicates with function calls', ()=> {
 
-  describe.only('with native functions', () => {
+  describe('with native functions', () => {
     [
       [ 'count(/data/item[true()]) = 2',   assertTrue ],
       [ 'count(/data/b[round(2.44) = 2])', assertNumberValue, 2 ],
