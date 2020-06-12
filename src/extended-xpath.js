@@ -130,6 +130,8 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
     },
     callNative = function(name, args) {
       dbg('callNative()', { name, args });
+      // TODO here we need to check for any arguments which are arrays, and
+      // convert those into an array of results
       var argString = '', arg, quote, i;
       for(i=0; i<args.length; ++i) {
         arg = args[i];
@@ -581,7 +583,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
               dbg('arr:', { arg, vals:arg.v });
               tail.v += 1 + arg.v.indexOf(true);
             } else {
-              // TODO who knows?  Use the first tiem
+              // TODO who knows?  Use the first item
               tail.v += arg.v[0] ? arg.v[0].t ? arg.v[0].v : arg.v[0] : '';
             }
           } else {
