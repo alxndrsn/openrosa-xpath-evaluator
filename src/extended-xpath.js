@@ -166,7 +166,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       }
     },
     typefor = function(val) {
-      console.log('typefor()', { val }, 'extended?', !!extendedProcessors.typefor);
+      dbg('typefor()', { val }, 'extended?', !!extendedProcessors.typefor);
       if(extendedProcessors.typefor) {
         var res = extendedProcessors.typefor(val);
         if(res) return res;
