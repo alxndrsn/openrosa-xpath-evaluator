@@ -41,8 +41,8 @@ describe.only('predicates with function calls', ()=> {
       [ '/data/item[1]/number',                         assertNumberValue, 4 ],
       [ '/data/item[true()]/number',                    assertNumberValue, 4 ],
       [ '/data/item[pi() > 3]/number',                  assertNumberValue, 4 ],
-//      [ '/data/item[tan(./number) > 1]/number',         assertNumberValue, 4 ],
-//      [ '/data/item[(./number div pi()) > 1.9]/number', assertNumberValue, 6 ],
+      [ '/data/item[tan(./number) > 1]/number',         assertNumberValue, 4 ],
+      [ '/data/item[(./number div pi()) > 1.9]/number', assertNumberValue, 6 ],
     ].forEach(([ expr, assertion, ...extraArgs ]) => {
       it(`should evaluate ${expr} as expected`, () => {
         initDoc(`
