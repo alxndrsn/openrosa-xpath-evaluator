@@ -27,7 +27,6 @@ var BOOLEAN_FN_COMPARATOR = /(true\(\)|false\(\))/;
 var COMPARATOR = /(=|<|>)/;
 
 var INVALID_ARGS = new Error('invalid args');
-var TOO_MANY_ARGS = new Error('too many args');
 var TOO_FEW_ARGS = new Error('too few args');
 
 // TODO remove all the checks for cur.t==='?' - what else woudl it be?
@@ -236,7 +235,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       if(input.startsWith('boolean(')) { //firefox
         if(input === 'boolean()') throw TOO_FEW_ARGS;
         var bargs = input.substring(8, input.indexOf(')')).split(',');
-        if(bargs.length > 1) throw TOO_MANY_ARGS;
+        if(bargs.length > 1) new Error('Too many args for boolean()');
       }
       if(input === '/') cN = cN.ownerDocument || cN;
 
@@ -338,7 +337,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
                 return toNodes(wrapped(expr, cN, nR, returnType));
               });
           dbg({ results });
-          evaluated = results
+          evaluated = results;
         } else if(['position'].includes(peek().v)) { // this looks unnecessarily complicated... and FIXME potentially quite dangerous if e.g. 'position' is included as a DOM path or something
           evaluated = wrapped(expr);
         } else {
@@ -593,7 +592,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
             } else if(arg.v[0].t === 'bool') {
               dbg('arr:', { arg, vals:arg.v.map(o => o.v) });
               tail.v += 1 + arg.v.map(o => o.v).indexOf(true);
-            } else if(typeof arg.v[0] === 'bool') {
+            } else if(typeof arg.v[0] === 'boolean') {
               dbg('arr:', { arg, vals:arg.v });
               tail.v += 1 + arg.v.indexOf(true);
             } else {

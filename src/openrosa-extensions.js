@@ -449,6 +449,7 @@ var openrosa_xpath_extensions = function(config) {
       }
     },
     selected: function(haystack, needle) {
+      dbg('selected()', { haystack, needle });
       return XPR.boolean(_str(haystack).split(' ').indexOf(_str(needle).trim()) !== -1);
     },
     'selected-at': function(list, index) {
@@ -592,3 +593,7 @@ var openrosa_xpath_extensions = function(config) {
 };
 
 module.exports = openrosa_xpath_extensions;
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}
