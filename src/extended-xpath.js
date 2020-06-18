@@ -516,20 +516,15 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           pushOp(c);
           break;
         case ' ': // TODO spec implies ExprWhitespace
-          switch(cur.v) {
-            case '': break; // trim leading whitespace
-            default: {
-              var op = cur.v.toLowerCase();
-              if(/^(mod|div|and|or)$/.test(op)) throw INVALID_ARGS;
-              if(!FUNCTION_NAME.test(cur.v)) handleXpathExpr();
-            }
-          }
+          if(cur.v === '') break; // trim leading whitespace
+          // trim trailing space from function names:
+          if(!FUNCTION_NAME.test(cur.v)) handleXpathExpr();
           break;
         case 'v':
           // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
           // there is no requirement for ExprWhitepsace before or after any
           // ExprToken, including OperatorName.
-          if(cur.v === 'di') {
+          if(cur.v === 'di') { // OperatorName: 'div'
             pushOp('/');
           } else cur.v += c;
           break;
@@ -537,7 +532,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
           // there is no requirement for ExprWhitepsace before or after any
           // ExprToken, including OperatorName.
-          if(cur.v === 'o') {
+          if(cur.v === 'o') { // OperatorName: 'or'
             pushOp('|');
           } else cur.v += c;
           break;
@@ -545,9 +540,9 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
           // there is no requirement for ExprWhitepsace before or after any
           // ExprToken, including OperatorName.
-          if(cur.v === 'an') {
+          if(cur.v === 'an') { // OperatorName: 'and'
             pushOp('&');
-          } else if(cur.v === 'mo') {
+          } else if(cur.v === 'mo') { // OperatorName: 'mod'
             pushOp('%');
           } else cur.v += c;
           break;
