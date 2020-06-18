@@ -323,6 +323,7 @@ var openrosa_xpath_extensions = function(config) {
     log: function(r) { return XPR.number(Math.log(r.v)); },
     log10: function(r) { return XPR.number(Math.log10(r.v)); },
     max: function() {
+      dbg('max()', { args:[ ...arguments ] });
       if(arguments.length > 1) {
         var out = [];
         for (var j = 0; j < arguments.length; j++){
@@ -382,6 +383,7 @@ var openrosa_xpath_extensions = function(config) {
      * This function simply decides whether to return the new result or the old value.
      */
     once: function(node, r) {
+      dbg('once()', { node, r });
       if(node.v.length && node.v[0].length) {
         return XPR.string(node.v[0]);
       }
@@ -586,3 +588,7 @@ var openrosa_xpath_extensions = function(config) {
 };
 
 module.exports = openrosa_xpath_extensions;
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}

@@ -82,7 +82,19 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 
       return { resultType:XPathResult.STRING_TYPE, stringValue: r.v===null ? '' : r.v.toString() };
     },
-    callFn = function(name, args, rt) {
+    callFn = function(name, supplied, rt) {
+      dbg('callFn()', { name, supplied, rt });
+      // every second arg should be a comma, but we allow for a trailing comma (TODO check spec that this is ok.. but there are test cases that require it)
+      const args = [];
+      for(let i=0; i<supplied.length; ++i) {
+        if(i % 2) {
+          if(supplied[i] !== ',') throw new Error('Weird args (should be separated by commas):' + JSON.stringify(supplied));
+        } else args.push(supplied[i]);
+      }
+      dbg('callFn()', { name, args, rt });
+
+
+
       if(extendedFuncs.hasOwnProperty(name)) {
         // if(rt && (/^(date|true|false|now$|today$|randomize$)/.test(name))) args.push(rt);
         if(rt && (/^(date|now$|today$|randomize$)/.test(name))) args.push(rt);
@@ -374,18 +386,22 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           } else err('Not sure how to handle: ' + c);
           break;
         case '(':
-          cur.t = 'fn';
+          cur.t = cur.v ? 'fn' : 'parens';
           cur.tokens = [];
           stack.push(cur);
           if(cur.v === 'once') {
+            // TODO once() should be a custom function, and we should pass the
+            // context node to all custom functions, or offer a way to access it
             newCurrent();
             cur.v = '.';
             handleXpathExpr();
+            peek().tokens.push(',');
           }
           newCurrent();
 
           break;
         case ')':
+          dbg('closing bracket...', { cur, tokens:peek().tokens });
           if(nextChar() === '[') {
             // collapse the stack, and let the native evaluator handle this...
             var tail = stack.pop();
@@ -398,11 +414,12 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           if(cur.v !== '') {
             handleXpathExpr(input.startsWith('randomize') ? 4 : null);
           }
+          dbg('planning to backtrack inside: ' + peek().t, { tokens:peek().tokens });
           backtrack();
           cur = stack.pop();
           dbg('just backtracked...', { c, cur, stack });
 
-          if(cur.t !== 'fn') err('c=) inside a non-function!');
+          if(cur.t !== 'fn' && cur.t !== 'parens') err('")" outside function/parens!');
           if(cur.v) {
             var expectedReturnType = rT;
             if(rT === XPathResult.BOOLEAN_TYPE) {
@@ -423,8 +440,9 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           newCurrent();
           break;
         case ',':
+          if(peek().t !== 'fn') err('Unexpected comma outside function arguments.');
           if(cur.v !== '') handleXpathExpr();
-          if(peek().t !== 'fn') err('P');
+          peek().tokens.push(',');
           break;
         case '*':
           if(c === '*' && (cur.v !== '' || peek().tokens.length === 0)) {
@@ -440,12 +458,18 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           }
           break;
         case '-':
+          dbg('deciding what - means for:', { cur, peek:peek() });
           var prev = prevToken();
           if(cur.v !== '' && nextChar() !== ' ' && input.charAt(i-1) !== ' ') {
             // function name expr
             dbg('function name expr', { c, cur, stack });
             cur.v += c;
-          } else if((peek().tokens.length === 0 && cur.v === '')) {
+          } else if((cur.v === '') && (
+              !prev ||
+              // ...+-1
+              prev.t === 'op' ||
+              // previous XXX
+              prev === ',')) {
             // -ve number
             dbg('negative number', { c, cur, stack });
             cur = { t:'num', string:'-' };
@@ -491,7 +515,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         case '+':
           pushOp(c);
           break;
-        case ' ':
+        case ' ': // TODO spec implies ExprWhitespace
           switch(cur.v) {
             case '': break; // trim leading whitespace
             case 'mod': pushOp('%'); break;
@@ -504,6 +528,32 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
               if(!FUNCTION_NAME.test(cur.v)) handleXpathExpr();
             }
           }
+          break;
+        case 'v':
+          // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
+          // there is no requirement for ExprWhitepsace before or after any
+          // ExprToken, including OperatorName.
+          if(cur.v === 'di') {
+            pushOp('/');
+          } else cur.v += c;
+          break;
+        case 'r':
+          // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
+          // there is no requirement for ExprWhitepsace before or after any
+          // ExprToken, including OperatorName.
+          if(cur.v === 'o') {
+            pushOp('|');
+          } else cur.v += c;
+          break;
+        case 'd':
+          // Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
+          // there is no requirement for ExprWhitepsace before or after any
+          // ExprToken, including OperatorName.
+          if(cur.v === 'an') {
+            pushOp('&');
+          } else if(cur.v === 'mo') {
+            pushOp('%');
+          } else cur.v += c;
           break;
         case '[':
           cur.sq = (cur.sq || 0) + 1;

@@ -1,5 +1,9 @@
 const { initDoc, assert, assertBoolean, assertTrue, assertFalse} = require('../../helpers');
 
+// Mad as it seems, according to https://www.w3.org/TR/1999/REC-xpath-19991116/#exprlex,
+// there is no requirement for ExprWhitepsace before or after any ExprToken,
+// including OperatorName.
+
 describe('and/or operators', () => {
 
   it('and works without spacing', () => {

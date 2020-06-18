@@ -1,6 +1,18 @@
 const { initDoc, assert, assertNumber, assertNumberValue, assertBoolean } = require('../../helpers');
 
 describe('number operators', () => {
+  [
+    [ '7',      7 ],
+    [ '   7',   7 ],
+    [ '7   ',   7 ],
+    [ '-7',    -7 ],
+    [ '   -7', -7 ],
+    [ '-7   ', -7 ],
+  ].forEach(([ expr, expected ]) => {
+    it(`should evaluate '${expr}' as ${expected}`, () => {
+      assertNumber(expr, expected);
+    });
+  });
 
   it('+ works', () => {
     [

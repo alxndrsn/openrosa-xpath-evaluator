@@ -1,12 +1,28 @@
 const { assertNumberValue, initDoc } = require('../../helpers');
 
+describe('specific test cases', () => {
+  [
+    [ '(1-2)',     -1 ],
+    [ 'max(1, -3)', 1 ],
+    [ 'max(1, 3)',  3 ],
+  ].forEach(([ expr, expected ]) => {
+    it(`should calculate '${expr}' as '${expected}'`, () => {
+      assertNumberValue(expr, expected);
+    });
+  });
+});
+
 describe('#max()', () => {
-  it('should max simple values', () => {
-    assertNumberValue('max(1, 2, 3)', 3);
-    assertNumberValue('max(-1, -3, 0)', 0);
-    assertNumberValue('max(-1, 0, -3)', 0);
-    assertNumberValue('max(-4, -1, -3)', -1);
-    assertNumberValue('max("")', NaN);
+  [
+    [ 'max(1, 2, 3)',     3 ],
+    [ 'max(-1, -3, 0)',   0 ],
+    [ 'max(-1, 0, -3)',   0 ],
+    [ 'max(-4, -1, -3)', -1 ],
+    [ 'max("")',        NaN ],
+  ].forEach(([ expr, expected ]) => {
+    it(`should calculate '${expr}' as '${expected}'`, () => {
+      assertNumberValue(expr, expected);
+    });
   });
 
   it('should return NaN if no numerical nodes are matched', () => {
