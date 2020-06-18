@@ -518,10 +518,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         case ' ': // TODO spec implies ExprWhitespace
           switch(cur.v) {
             case '': break; // trim leading whitespace
-            case 'mod': pushOp('%'); break;
-            case 'div': pushOp('/'); break;
-            case 'and': pushOp('&'); break;
-            case 'or':  pushOp('|'); break;
             default: {
               var op = cur.v.toLowerCase();
               if(/^(mod|div|and|or)$/.test(op)) throw INVALID_ARGS;
