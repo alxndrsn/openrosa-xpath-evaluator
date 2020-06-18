@@ -77,4 +77,28 @@ describe.only('predicates with function calls', ()=> {
     // assertTrue('selected("a b", "a")');
     assertNumberValue('count(/data/a[selected("a b", "a")])', 3);
   });
+
+  it('should deal with a fiendishly complicated example', () => {
+      initDoc(`
+        <data>
+          <item>
+              <number>2</number>
+              <name>
+                  <first>1</first>
+                  <last>bb</last>
+              </name>
+              <result>incorrect</result>
+          </item>
+          <item>
+              <number>3</number>
+              <name>
+                  <first>1</first>
+                  <last>b</last>
+              </name>
+              <result>correct</result>
+          </item>
+      </data>`);
+
+      assertStringValue('/data/item/number[../name/first = string-length(../name/last)]/../result', 'correct');
+  });
 });
