@@ -1,3 +1,5 @@
-✖ 2 tests failed
+✖ 4 tests failed
       ✖ should evaluate /data/item[string-length(./number)=1]/number + 3 as expected
+      ✖ should evaluate /data/item[string-length(./number) = 1]/number + 3 as expected
       ✖ should evaluate /data/item[tan(./number) > 1]/number as expected
+      ✖ should evaluate /data/item[tan(./number) <= 1]/number as expected
