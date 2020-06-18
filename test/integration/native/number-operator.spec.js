@@ -230,8 +230,39 @@ describe('number operators', () => {
     });
   });
 
-  it('*,+,-,mod,div precendence rules are applied correctly', () => {
+  describe('bracketed expressions', () => {
     [
+      ['10+(1+(1+(1+1)))', 14],
+      ['10-(1+(1+(1+1)))',  6],
+      ['10-(1-(1-(1+1)))',  8],
+      ['10-(1-(1-(1-1)))', 10],
+    ].forEach(([expr, expected]) => {
+      it(`should evaluate '${expr}' as '${expected}'`, () => {
+        assertNumber(expr, expected);
+      });
+    });
+  });
+
+  describe('*,+,-,mod,div precendence rules are applied correctly', () => {
+    [
+      ["3.141592653589793 + 2 div 2", 4.141592653589793],
+      ["pi() + 1",                    4.141592653589793],
+      ["pi() + 2 div 2",              4.141592653589793],
+      ["2 div 2 + pi()",              4.141592653589793],
+      ["    pi() + 2 div 2", 4.141592653589793],
+
+      ["sin(pi() + 1)",       Math.sin(4.141592653589793)],
+      ["sin(pi() + 2 div 2)", Math.sin(4.141592653589793)],
+      ["sin(2 div 2 + pi())", Math.sin(4.141592653589793)],
+
+      ["sin(2)",                       Math.sin(2)],
+      ["sin(pi() div pi() + 2 div 2)", Math.sin(2)],
+      ["sin(2 div 2 + pi() div pi())", Math.sin(2)],
+
+      ["cos(8)",           Math.cos(8)],
+      ["cos((4 - 3)*4+5-1)", Math.cos(8)],
+
+      ["    1+2*3", 7],
       ["1+2*3", 7],
       ["2*3+1", 7],
       ["1-10 mod 3 div 3", 0.6666666666666667],
@@ -239,7 +270,9 @@ describe('number operators', () => {
       ["(4-3)*4+5-1", 8],
       ["8 div 2 + 4", 8]
     ].forEach(([expr, expected]) => {
-      assertNumber(expr, expected);
+      it(`should evaluate '${expr}' as '${expected}'`, () => {
+        assertNumber(expr, expected);
+      });
     });
   });
 

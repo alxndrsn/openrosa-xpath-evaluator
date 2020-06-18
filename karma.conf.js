@@ -7,7 +7,6 @@ module.exports = function(config) {
     ],
     browsers: [
       'ChromeHeadless',
-      'FirefoxHeadless',
     ],
     files: [
       'node_modules/chai/chai.js',

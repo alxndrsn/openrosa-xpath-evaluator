@@ -260,6 +260,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         newCurrent();
       },
       evalOp = function(lhs, op, rhs) {
+        dbg('evalOp()', { lhs, op, rhs });
         if(extendedProcessors.handleInfix) {
           var res = extendedProcessors.handleInfix(err, lhs, op, rhs);
           if(res && res.t === 'continue') {
@@ -285,6 +286,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         // handle infix operators
         var i, j, ops, tokens;
         tokens = peek().tokens;
+        dbg('backtrack()', { tokens });
         for(j=OP_PRECEDENCE.length-1; j>=0; --j) {
           ops = OP_PRECEDENCE[j];
           i = 1;
@@ -398,7 +400,9 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           }
           backtrack();
           cur = stack.pop();
-          if(cur.t !== 'fn') err();
+          dbg('just backtracked...', { c, cur, stack });
+
+          if(cur.t !== 'fn') err('c=) inside a non-function!');
           if(cur.v) {
             var expectedReturnType = rT;
             if(rT === XPathResult.BOOLEAN_TYPE) {
@@ -413,14 +417,14 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
               res.v = [res.v[0]]; // only interested in first element
             peek().tokens.push(res);
           } else {
-            if(cur.tokens.length !== 1) err();
+            if(cur.tokens.length !== 1) err('Expected one token, but found: ' + cur.tokens.length);
             peek().tokens.push(cur.tokens[0]);
           }
           newCurrent();
           break;
         case ',':
           if(cur.v !== '') handleXpathExpr();
-          if(peek().t !== 'fn') err();
+          if(peek().t !== 'fn') err('P');
           break;
         case '*':
           if(c === '*' && (cur.v !== '' || peek().tokens.length === 0)) {
@@ -439,20 +443,20 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           var prev = prevToken();
           if(cur.v !== '' && nextChar() !== ' ' && input.charAt(i-1) !== ' ') {
             // function name expr
+            dbg('function name expr', { c, cur, stack });
             cur.v += c;
-          } else if((peek().tokens.length === 0 && cur.v === '') ||
-            (prev && prev.t === 'op') ||
-            // two argument function
-            (prev && prev.t === 'num' && stack.length > 1 && stack[1].t === 'fn') ||
-            // negative argument
-            (prev && prev.t !== 'num' && isNum(nextChar()))) {
+          } else if((peek().tokens.length === 0 && cur.v === '')) {
             // -ve number
+            dbg('negative number', { c, cur, stack });
             cur = { t:'num', string:'-' };
           } else {
-            if(cur.v !== '') {
+            dbg('might be an op...', { c, cur, stack });
+            if(cur.v !== '') { // TODO could just be if(!cur.v)
+              dbg('cur.v has value...');
               if(!DIGIT.test(cur.v) && input[i-1] !== ' ') throw INVALID_ARGS;
               peek().tokens.push(cur);
             }
+            dbg('Pushing op...');
             pushOp(c);
           }
           break;
@@ -532,3 +536,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 };
 
 module.exports = ExtendedXPathEvaluator;
+
+function dbg(...args) {
+  console.log(...args.map(JSON.stringify));
+}
