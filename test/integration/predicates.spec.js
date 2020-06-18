@@ -62,7 +62,7 @@ describe.only('predicates with function calls', ()=> {
   });
 
   // I put this one separate as it has a different 'too many args' error, and there may be multiple causes for failure
-  it.only('with the #selected function', () => {
+  it('with the #selected function', () => {
     initDoc(`
       <data>
         <a>a</a>
