@@ -1,2 +1,104 @@
-✖ 2 tests failed
+✖ 207 tests failed
+      ✖ ./author should be delegated to the regular XPath evaluator
+      ✖ .//title should be delegated to the regular XPath evaluator
+      ✖ book[@style] should be delegated to the regular XPath evaluator
+      ✖ ./first-name should be delegated to the regular XPath evaluator
+      ✖ author[first-name][3] should be delegated to the regular XPath evaluator
+      ✖ book[excerpt] should be delegated to the regular XPath evaluator
+      ✖ book[excerpt]/title should be delegated to the regular XPath evaluator
+      ✖ book[excerpt]/author[degree] should be delegated to the regular XPath evaluator
+      ✖ book[author/degree] should be delegated to the regular XPath evaluator
+      ✖ author[degree][award] should be delegated to the regular XPath evaluator
+      ✖ ../../some-path should be delegated to the regular XPath evaluator
+      ✖ *[@specialty] should be delegated to the regular XPath evaluator
+      ✖ author[degree and award] should be delegated to the regular XPath evaluator
+      ✖ author[(degree or award) and publication] should be delegated to the regular XPath evaluator
+      ✖ author[degree and not(publication)] should be delegated to the regular XPath evaluator
+      ✖ author[not(degree or award) and publication] should be delegated to the regular XPath evaluator
+      ✖ author[. = "Matthew Bob"] should be delegated to the regular XPath evaluator
+      ✖ author[last-name = "Bob" and ../price &gt; 50] should be delegated to the regular XPath evaluator
+      ✖ author[not(last-name = "Bob")] should be delegated to the regular XPath evaluator
+      ✖ author[first-name = "Bob"] should be delegated to the regular XPath evaluator
+      ✖ author[last-name = "Bob" and first-name = "Joe"] should be delegated to the regular XPath evaluator
+      ✖ author[* = "Bob"] should be delegated to the regular XPath evaluator
+      ✖ author[last-name = "Bob"] should be delegated to the regular XPath evaluator
+      ✖ author[last-name[1] = "Bob"] should be delegated to the regular XPath evaluator
+      ✖ author[last-name [position()=1]= "Bob"] should be delegated to the regular XPath evaluator
+      ✖ book[position() &lt;= 3] should be delegated to the regular XPath evaluator
+      ✖ book[/bookstore/@specialty=@style] should be delegated to the regular XPath evaluator
+      ✖ degree[position() &lt; 3] should be delegated to the regular XPath evaluator
+      ✖ degree[@from != "Harvard"] should be delegated to the regular XPath evaluator
+      ✖ price[@intl = "Canada"] should be delegated to the regular XPath evaluator
+      ✖ x/y[position() = 1] should be delegated to the regular XPath evaluator
+        ✖ should support equality operator
+        ✖ should support inequality operator
+        ✖ should support comparators
+        ✖ should support equality operator
+        ✖ should support inequality operator
+    ✖ should convert "not(selected(../dob_method,'approx'))" to match "true"
+    ✖ should convert "not(not(selected(../dob_method,'approx')))" to match "false"
+    ✖ should convert "selected(../dob_method,'approx')" to match "false"
+    ✖ should convert "." to match ""
+    ✖ should convert ".>1" to match "false"
+    ✖ should convert ".> 1" to match "false"
+    ✖ should convert ". >1" to match "false"
+    ✖ should convert ". > 1" to match "false"
+    ✖ should convert ".>=1" to match "false"
+    ✖ should convert ".>= 1" to match "false"
+    ✖ should convert ". >=1" to match "false"
+    ✖ should convert ". >= 1" to match "false"
+    ✖ should convert ".<1" to match "true"
+    ✖ should convert ".< 1" to match "true"
+    ✖ should convert ". <1" to match "true"
+    ✖ should convert ". < 1" to match "true"
+    ✖ should convert ".<=1" to match "true"
+    ✖ should convert ".<= 1" to match "true"
+    ✖ should convert ". <=1" to match "true"
+    ✖ should convert ". <= 1" to match "true"
+    ✖ should convert "../some-path='some-value'" to match "false"
+    ✖ should convert "../some-path="some-value"" to match "false"
+    ✖ should convert "../some-path= 'some-value'" to match "false"
+    ✖ should convert "../some-path ='some-value'" to match "false"
+    ✖ should convert "../some-path = 'some-value'" to match "false"
+    ✖ should convert "'some-value'=../some-path" to match "false"
+    ✖ should convert ""some-value"=../some-path" to match "false"
+    ✖ should convert "'some-value'= ../some-path" to match "false"
+    ✖ should convert "'some-value' =../some-path" to match "false"
+    ✖ should convert "'some-value' = ../some-path" to match "false"
+      ✖ calculation with node operand returned as string
+      ✖ calculation with multiple nodes operand returned as string
+    ✖ boolean() fails when too many arguments are provided
+    ✖ correctly evaluates = and !=
+      ✖ compare =, != with nodes
+      ✖ compare > < >= <= with nodes
+      ✖ 
+    ✖ position()
+    ✖ string-length()
+      ✖ area() works (1)
+      ✖ distance() works (1)
+      ✖ area() works (2)
+      ✖ distance() works (2)
+      ✖ area() works (3)
+      ✖ distance() works (3)
+      ✖ area() works (4)
+      ✖ distance() works (4)
+    ✖ count-non-empty
+    ✖ for nodes (where the date datatype is guessed)
+    ✖ datestring comparisons (date detection)
+    ✖ date calculations
+    ✖ format-date()
+    ✖ max(self::*) & max(*)
+    ✖ attempt to change value of empty node
+    ✖ position(node) with an argument
+    ✖ position(node) with p node
+      ✖ without a seed
+      ✖ with a seed: 42
+      ✖ with a seed: -42
+      ✖ with a seed: 1
+      ✖ with a seed: 11111111
+      ✖ with a seed: int(1)
+      ✖ with a seed: floor(1.1)
+      ✖ with a seed: //xhtml:div[@id="testFunctionNodeset2"]/xhtml:p
+    ✖ randomizes nodes
+    ✖ sin() for node
     ✖ should deal with a fiendishly complicated example

@@ -1,6 +1,6 @@
 const { assertNumberValue, assertStringValue, assertTrue, initDoc } = require('../helpers');
 
-describe.only('predicates with function calls', ()=> {
+describe('predicates with function calls', ()=> {
 
   describe('with native functions', () => {
     [
