@@ -20,14 +20,7 @@ function element2num(e) {
 // TODO should nodes really get this far in the first place?  If we use SNAPSHOT_ITERATORs, and convert them to t:'arr' we might simplify things
 // TODO this is now done elsewhere... sometimes?
 function flattenNodes(nodes) {
-  const arr = [];
-  nodes.map(node => {
-    if(Array.isArray(node)) {
-      arr.push(...node.map(element2num));
-    } else arr.push(element2num(node));
-  });
-  dbg('flattenNodes()', { nodes, arr });
-  return arr;
+  return nodes.map(element2num);
 }
 
 function handleOperation(lhs, op, rhs, config) {
