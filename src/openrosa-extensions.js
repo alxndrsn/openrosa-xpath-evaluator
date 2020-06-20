@@ -456,7 +456,7 @@ var openrosa_xpath_extensions = function(config) {
       if(!index) throw new Error('No index provided for selected-at() [index=' + index + '; list=' + JSON.stringify(list));
       return XPR.string(_str(list).split(' ')[_int(index)] || '');
     },
-    sin: function(r) { return XPR.number(Math.sin(r.v)); },
+    sin: function(r) { return dbg('sin()', { r }) || XPR.number(Math.sin(asNumber(r))); },
     sqrt: function(r) { return XPR.number(Math.sqrt(r.v)); },
     'string-length': function(r) { return XPR.number(asString(r).length); }, // TODO this isn't an extension... but maybe we should just support all functions - the core ones are quite simple(?)
     substr: function(string, startIndex, endIndex) {

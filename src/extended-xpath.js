@@ -36,13 +36,14 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
     extendedFuncs = extensions.func || {},
     extendedProcessors = extensions.process || {},
     toInternalResult = function(r) {
-      dbg('toInternalResult()', { r });
+      dbg('toInternalResult()', { r, rT:r.resultType });
       var n, v;
       if(r.resultType === XPathResult.NUMBER_TYPE) return { t:'num', v:r.numberValue };
       if(r.resultType === XPathResult.BOOLEAN_TYPE) return {  t:'bool', v:r.booleanValue };
       if(r.resultType === XPathResult.UNORDERED_NODE_ITERATOR_TYPE) {
         v = [];
         while((n = r.iterateNext())) v.push(n.textContent);
+        dbg('toInternalResult()', { v });
         return { t:'arr', v:v };
       }
       return { t:'str', v:r.stringValue };
