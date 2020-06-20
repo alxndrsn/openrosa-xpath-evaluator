@@ -425,7 +425,7 @@ var openrosa_xpath_extensions = function(config) {
         return XPR.string(r.v[0] || ''); // TODO I suspect there is a bug in the current orxe2 code relating to this line
       }
 
-      // nodes as seed
+      // nodes as seed TODO array breakdown should occur before calling functions, not re-implemented in every function
       if(Array.isArray(seed) && seed.length && seed[0].nodeType === 1) {
         return [r, parseInt(seed[0].textContent)];
       }
@@ -458,6 +458,7 @@ var openrosa_xpath_extensions = function(config) {
     },
     sin: function(r) { return XPR.number(Math.sin(r.v)); },
     sqrt: function(r) { return XPR.number(Math.sqrt(r.v)); },
+    'string-length': function(r) { return XPR.number(asString(r).length); }, // TODO this isn't an extension... but maybe we should just support all functions - the core ones are quite simple(?)
     substr: function(string, startIndex, endIndex) {
       return XPR.string(_str(string).slice(
           _int(startIndex),
@@ -472,7 +473,7 @@ var openrosa_xpath_extensions = function(config) {
       }
       return XPR.number(out);
     },
-    tan: function(r) { return XPR.number(Math.tan(r.v)); },
+    tan: function(r) { return dbg('tan()', { r }) || XPR.number(Math.tan(asNumber(r))); },
     'true': function(rt) {
       if(rt === XPathResult.NUMBER_TYPE) return XPR.number(1);
       if(arguments.length>1) throw TOO_MANY_ARGS;
@@ -596,4 +597,48 @@ module.exports = openrosa_xpath_extensions;
 
 function dbg(...args) {
   console.log(...args.map(JSON.stringify));
+}
+
+/**
+  * Used to cast arguments for "number functions" to javascript numbers, as per
+  * https://www.w3.org/TR/1999/REC-xpath-19991116/#section-Number-Functions
+  *
+  * Currently this has to support multiple input formats.
+  */
+function asNumber(thing) {
+  dbg('asNumber()', { thing });
+  let v;
+  if(thing instanceof XPathResult) {
+    throw new Error(`thing is an XPathResult!`);
+  } else if(thing instanceof Element) {
+    // TODO we should just be able to call wrapped(number(...)) with correct context node
+    v = thing.textContent;
+  } else if(thing.t) {
+    v = thing.v;
+  }
+  dbg('asNumber()', { v, num:+v });
+  return +v;
+}
+
+/**
+  * Used to cast arguments for "string functions" to javascript strings, as per
+  * https://www.w3.org/TR/1999/REC-xpath-19991116/#section-String-Functions
+  *
+  * Currently this has to support multiple input formats.
+  */
+function asString(thing) {
+  dbg('asString()', { thing });
+  let v;
+  if(thing instanceof XPathResult) {
+    throw new Error(`thing is an XPathResult!`);
+  } else if(thing instanceof Element) {
+    // TODO we should just be able to call wrapped(number(...)) with correct context node
+    v = thing.textContent;
+  } else if(thing.t) {
+    v = thing.v;
+  } else if(typeof thing === 'string') {
+    v = thing;
+  } else throw new Error('asString() :: no idea how to handle: [' + typeof thing + ', ' + thing + ']');
+  dbg('asString()', { v });
+  return v;
 }

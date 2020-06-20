@@ -1,5 +1,4 @@
 const ExtendedXPathEvaluator = require('../src/extended-xpath');
-const assert = chai.assert;
 
 var docs = '',
     DATE_MATCH = '(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \\d\\d 20\\d\\d \\d\\d:\\d\\d:\\d\\d GMT([+-]\\d\\d\\d\\d \(.+\))?',

@@ -6,6 +6,7 @@ var {isNativeFunction, preprocessNativeArgs} = require('./utils/native');
 var {DATE_STRING, dateToDays} = require('./utils/date');
 var {toNodes, toSnapshotResult} = require('./utils/result');
 var {inputArgs, preprocessInput} = require('./utils/input');
+var expandArgs = require('./utils/expand-args');
 /*
  * From http://www.w3.org/TR/xpath/#section-Expressions XPath infix
  * operator precedence is left-associative, and as follows:
@@ -102,6 +103,25 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       }
       dbg('callFn()', { name, args, rt });
 
+      // TODO here we need to check for any arguments which are arrays, and
+      // convert those into an array of results.  It's likely this should only
+      // be done when we're looking for nodesets, instead of single values.
+      // but as [] in xpaths are filters on a path, callFn invocations from
+      // inside square brackets that are called on nodesets should always be
+      // returning nodesets.  This may not be the case for callFn() invocations
+      // in general that _are_ called on nodesets, or callFn() invocations from
+      // within square brackets that are _not_ called on nodesets.
+      if(args.some(Array.isArray)) {
+        const expanded = expandArgs(args);
+        dbg('callFn()', { expandArgs });
+        return expanded.map(args => _callFn(name, args, rt));
+      }
+      dbg('callFn() :: single call');
+      return _callFn(name, args, rt);
+    },
+    _callFn = function(name, args, rt) {
+      dbg('_callFn()', { name, args, rt });
+
       if(extendedFuncs.hasOwnProperty(name)) {
         // if(rt && (/^(date|true|false|now$|today$|randomize$)/.test(name))) args.push(rt);
         if(rt && (/^(date|now$|today$|randomize$)/.test(name))) args.push(rt);
@@ -141,8 +161,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
     },
     callNative = function(name, args) {
       dbg('callNative()', { name, args });
-      // TODO here we need to check for any arguments which are arrays, and
-      // convert those into an array of results
       var argString = '', arg, quote, i;
       for(i=0; i<args.length; ++i) {
         arg = args[i];
@@ -155,6 +173,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         if(arg.t !== 'num' && arg.t !== 'bool') argString += quote;
         if(i < args.length - 1) argString += ', ';
       }
+      dbg('callNative() ::' + name + '(' + argString + ')');
       return toInternalResult(wrapped(name + '(' + argString + ')'));
     },
     objfor = v => {
@@ -337,7 +356,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
                 return toNodes(wrapped(expr, cN, nR, returnType));
               });
           dbg({ results });
-          evaluated = results;
+          evaluated = results.reduce((acc, res) => { dbg('fltn', { acc, res }); acc.push(...res); return acc; }, []);
         } else if(['position'].includes(peek().v)) { // this looks unnecessarily complicated... and FIXME potentially quite dangerous if e.g. 'position' is included as a DOM path or something
           evaluated = wrapped(expr);
         } else {

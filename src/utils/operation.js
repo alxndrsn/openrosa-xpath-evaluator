@@ -10,10 +10,15 @@ function isNumber(value) {
 }
 
 function element2num(e) {
-  return { t:'num', v:parseFloat(e.innerHTML) };
+  if(e instanceof Element) {
+    return { t:'num', v:parseFloat(e.innerHTML) };
+  } else if(e.t === 'num') {
+    return e;
+  } else throw Error(`element2num() :: no idea how to handle: ${JSON.stringify(e)}`);
 }
 
 // TODO should nodes really get this far in the first place?  If we use SNAPSHOT_ITERATORs, and convert them to t:'arr' we might simplify things
+// TODO this is now done elsewhere... sometimes?
 function flattenNodes(nodes) {
   const arr = [];
   nodes.map(node => {
@@ -21,6 +26,7 @@ function flattenNodes(nodes) {
       arr.push(...node.map(element2num));
     } else arr.push(element2num(node));
   });
+  dbg('flattenNodes()', { nodes, arr });
   return arr;
 }
 

@@ -13,7 +13,8 @@ module.exports = function(config) {
       'node_modules/chai/chai.js',
       'node_modules/lodash/lodash.js',
       'src/**/*.js',
-      'test/**/*.spec.js'
+      'test/extended-xpath.spec.js',
+      'test/integration/**/*.spec.js',
     ],
     preprocessors: {
       'src/**/*.js': ['webpack'],
