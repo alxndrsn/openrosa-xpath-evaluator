@@ -101,22 +101,4 @@ describe.only('predicates with function calls', ()=> {
 
       assertStringValue('/data/item/number[../name/first = string-length(../name/last)]/../result', 'correct');
   });
-
-  it('sin() for node', () => {
-    initDoc(`
-      <!DOCTYPE html>
-      <html xml:lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://some-namespace.com/nss">
-        <body class="yui3-skin-sam" id="body">
-          <div id="testFunctionNodeset">
-            <div id="testFunctionNodeset2">
-              <p>1</p>
-              <p>2</p>
-              <p>3</p>
-              <p>4</p>
-            </div>
-          </div>
-        </body>
-      </html>`, nsResolver);
-    assertNumberValue('sin(//xhtml:div[@id="testFunctionNodeset2"]/xhtml:p[2])', 0.9092974268256817);
-  });
 });
