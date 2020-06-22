@@ -4,10 +4,10 @@ module.exports = function(args) {
     if(Array.isArray(arg)) {
       const reExpanded = [];
       arg.forEach(a => {
-      	expanded.forEach(exp => {
-	  dbg('adding', { a, exp, reExpanded });
-	  reExpanded.push([ ...exp, a ]);
-	});
+        expanded.forEach(exp => {
+          dbg('adding', { a, exp, reExpanded });
+          reExpanded.push([ ...exp, a ]);
+        });
       });
       expanded = reExpanded;
     } else {
