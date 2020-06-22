@@ -36,21 +36,17 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
     extendedFuncs = extensions.func || {},
     extendedProcessors = extensions.process || {},
     toInternalResult = function(r) {
-      dbg('toInternalResult()', { r, rT:r.resultType });
       var n, v;
       if(r.resultType === XPathResult.NUMBER_TYPE) return { t:'num', v:r.numberValue };
       if(r.resultType === XPathResult.BOOLEAN_TYPE) return {  t:'bool', v:r.booleanValue };
       if(r.resultType === XPathResult.UNORDERED_NODE_ITERATOR_TYPE) {
         v = [];
         while((n = r.iterateNext())) v.push(n.textContent);
-        dbg('toInternalResult()', { v });
         return { t:'arr', v:v };
       }
       return { t:'str', v:r.stringValue };
     },
     toExternalResult = function(r, rt) {
-      dbg('toExternalResult()', { r, rt });
-
       if(extendedProcessors.toExternalResult) {
         var res = extendedProcessors.toExternalResult(r);
         if(res) return res;
@@ -91,7 +87,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       return { resultType:XPathResult.STRING_TYPE, stringValue: r.v===null ? '' : r.v.toString() };
     },
     callFn = function(name, supplied, rt) {
-      dbg('callFn()', { name, supplied, rt });
       // Every second arg should be a comma, but we allow for a trailing comma.
       // From the spec, this looks valid, if you assume that ExprWhitespace is a
       // valid Expr.
@@ -102,7 +97,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           if(supplied[i] !== ',') throw new Error('Weird args (should be separated by commas):' + JSON.stringify(supplied));
         } else args.push(supplied[i]);
       }
-      dbg('callFn()', { name, args, rt });
 
       // TODO here we need to check for any arguments which are arrays, and
       // convert those into an array of results.  It's likely this should only
@@ -114,15 +108,11 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       // within square brackets that are _not_ called on nodesets.
       if(args.some(Array.isArray)) {
         const expanded = expandArgs(args);
-        dbg('callFn()', { expandArgs });
         return expanded.map(args => _callFn(name, args, rt));
       }
-      dbg('callFn() :: single call');
       return _callFn(name, args, rt);
     },
     _callFn = function(name, args, rt) {
-      dbg('_callFn()', { name, args, rt });
-
       if(extendedFuncs.hasOwnProperty(name)) {
         // if(rt && (/^(date|true|false|now$|today$|randomize$)/.test(name))) args.push(rt);
         if(rt && (/^(date|now$|today$|randomize$)/.test(name))) args.push(rt);
@@ -151,17 +141,11 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       return callNative(name, preprocessNativeArgs(name, args));
     },
     callExtended = function(name, args) {
-      dbg('callExtended()', { name, args });
-      var argVals = [], res, i;
-      dbg('callExtended()', { name, args, argVals });
+      var argVals = [], i;
       for(i=0; i<args.length; ++i) argVals.push(args[i]);
-      dbg('callExtended()', { name, args, argVals });
-      res = extendedFuncs[name].apply(null, argVals);
-      dbg('callExtended()', { name, args, argVals, res });
-      return res;
+      return extendedFuncs[name].apply(null, argVals);
     },
     callNative = function(name, args) {
-      dbg('callNative()', { name, args });
       var argString = '', arg, quote, i;
       for(i=0; i<args.length; ++i) {
         arg = args[i];
@@ -174,7 +158,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         if(arg.t !== 'num' && arg.t !== 'bool') argString += quote;
         if(i < args.length - 1) argString += ', ';
       }
-      dbg('callNative() ::' + name + '(' + argString + ')');
       return toInternalResult(wrapped(name + '(' + argString + ')'));
     },
     objfor = v => {
@@ -185,7 +168,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
       }
     },
     typefor = function(val) {
-      dbg('typefor()', { val }, 'extended?', !!extendedProcessors.typefor);
       if(extendedProcessors.typefor) {
         var res = extendedProcessors.typefor(val);
         if(res) return res;
@@ -294,9 +276,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         newCurrent();
       },
       evalOp = function(lhs, op, rhs) {
-        dbg('evalOp()', { cur, lhs, op, rhs });
         if(extendedProcessors.handleInfix) {
-          dbg('evalOp() :: handleInfix');
           var res = extendedProcessors.handleInfix(err, lhs, op, rhs);
           if(res && res.t === 'continue') {
             lhs = res.lhs; op = res.op; rhs = res.rhs; res = null;
@@ -307,7 +287,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         return handleOperation(lhs, op, rhs, config);
       },
       evalOpAt = function(tokens, opIndex) {
-        dbg('evalOpAt()', { tokens, opIndex });
         var res = evalOp(
             tokens[opIndex - 1],
             tokens[opIndex],
@@ -319,7 +298,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
         }
       },
       backtrack = function() {
-        dbg('backtrack()', 'ENTRY', { cur, stack });
         // handle infix operators
         var i, j, ops, tokens;
         tokens = peek().tokens;
@@ -332,11 +310,8 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
             } else ++i;
           }
         }
-        dbg('backtrack()', 'EXIT ', { cur, stack });
       },
       handleXpathExpr = function(returnType) {
-        dbg('handleXpathExpr()', { returnType, cur, stack, cN });
-        // XXX
         var expr = cur.v;
 
         var evaluated;
@@ -346,18 +321,14 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
               .filter(s => s.t === 'sq')
               .map(s => s.v.slice(0, -1))
               .join('');
-          dbg({ contextSelecter });
           const matched = wrapped(contextSelecter, cN, nR, XPathResult.ORDERED_NODE_ITERATOR_TYPE); // maybe this should allow all matching nodes?
-          dbg({ matched });
 
           // we're in a child of sq, so we need to return a result set... which will eventually be used to return a result set(???)
-          dbg('xxx', { returnType });
           const results = toNodes(matched)
               .map(cN => {
                 return toNodes(wrapped(expr, cN, nR, returnType));
               });
-          dbg({ results });
-          evaluated = results.reduce((acc, res) => { dbg('fltn', { acc, res }); acc.push(...res); return acc; }, []);
+          evaluated = results.reduce((acc, res) => { acc.push(...res); return acc; }, []);
         } else if(['position'].includes(peek().v)) { // this looks unnecessarily complicated... and FIXME potentially quite dangerous if e.g. 'position' is included as a DOM path or something
           evaluated = wrapped(expr);
         } else {
@@ -395,7 +366,6 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 
     for(i=0; i<input.length; ++i) {
       var c = input.charAt(i);
-      dbg({ c, cur, stack });
       if(cur.sq) {
         cur.v += c;
         if(c === ']') --cur.sq;
@@ -476,9 +446,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
             const res = callFn(cur.v, cur.tokens, expectedReturnType);
             if(cur.v === 'node' && res.t === 'arr' && res.v.length > 0)
               res.v = [res.v[0]]; // only interested in first element
-            dbg('peeking...', { stack });
             peek().tokens.push(res);
-            dbg('peeked.');
           } else {
             if(cur.tokens.length !== 1) err('Expected one token, but found: ' + cur.tokens.length);
             peek().tokens.push(cur.tokens[0]);
@@ -512,7 +480,7 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
               !prev ||
               // ...+-1
               prev.t === 'op' ||
-              // previous XXX
+              // previous
               prev === ',')) {
             // -ve number
             cur = { t:'num', string:'-' };
@@ -587,33 +555,25 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
           } else cur.v += c;
           break;
         case '[':
-          dbg({ cur, stack });
           cur.v += c;
           cur.t = 'sq';
           cur.tokens = [];
           stack.push(cur);
-          dbg({ cur, stack });
           newCurrent();
-          dbg({ cur, stack });
           break;
         case ']': {
           // TODO evaluate what's in the square brackets, and then get back up the stack
-          dbg({ c, cur, stack });
-          // XXX
           const tail = peek();
           if(tail.tokens.length === 0) err('No tokens.');
           if(tail.tokens.length >= 3) backtrack();
           if(tail.tokens.length > 1) err('Too many tokens.');
-          dbg({ c, cur, tail, stack });
           const arg = tail.tokens[0];
           if(arg.t === 'arr') {
             if(!arg.v.length) {
               tail.v += 'false()';
             } else if(arg.v[0].t === 'bool') {
-              dbg('arr:', { arg, vals:arg.v.map(o => o.v) });
               tail.v += 1 + arg.v.map(o => o.v).indexOf(true);
             } else if(typeof arg.v[0] === 'boolean') {
-              dbg('arr:', { arg, vals:arg.v });
               tail.v += 1 + arg.v.indexOf(true);
             } else {
               // TODO who knows?  Use the first item
@@ -656,7 +616,3 @@ var ExtendedXPathEvaluator = function(wrapped, extensions) {
 };
 
 module.exports = ExtendedXPathEvaluator;
-
-function dbg(...args) {
-  console.log(...args.map(JSON.stringify));
-}

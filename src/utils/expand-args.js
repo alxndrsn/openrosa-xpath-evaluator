@@ -5,7 +5,6 @@ module.exports = function(args) {
       const reExpanded = [];
       arg.forEach(a => {
         expanded.forEach(exp => {
-          dbg('adding', { a, exp, reExpanded });
           reExpanded.push([ ...exp, a ]);
         });
       });
@@ -14,10 +13,5 @@ module.exports = function(args) {
       expanded.forEach(ls => ls.push(arg));
     }
   });
-  dbg('returning:', { expanded });
   return expanded;
 };
-
-function dbg(...args) {
-  console.log('expandArgs()', ...args.map(JSON.stringify));
-}

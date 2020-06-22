@@ -23,8 +23,6 @@ function flattenNodes(nodes) {
 }
 
 function handleOperation(lhs, op, rhs, config) {
-  dbg('handleOperation()', { lhs, op, rhs });
-
   // TODO here we need to map arrays to arrays of results
   if(lhs.t === 'arr') {
     if(!lhs.v.length) return [];
@@ -33,17 +31,14 @@ function handleOperation(lhs, op, rhs, config) {
   }
   if(rhs.t === 'arr') {
     const ret = rhs.v.map(v => handleOperation(lhs, op, v, config));
-    dbg('handleOperation()', { ret });
     return ret;
   }
   if(Array.isArray(lhs)) {
     const ret = flattenNodes(lhs).map(v => handleOperation(v, op, rhs, config));
-    dbg('handleOperation()', { ret });
     return ret;
   }
   if(Array.isArray(rhs)) {
     const ret = flattenNodes(rhs).map(v => handleOperation(lhs, op, v, config));
-    dbg('handleOperation()', { ret });
     return ret;
   }
 
@@ -295,7 +290,3 @@ function handleOperation(lhs, op, rhs, config) {
 module.exports = {
   handleOperation
 };
-
-function dbg(...args) {
-  console.log(...args.map(JSON.stringify));
-}

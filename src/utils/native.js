@@ -11,13 +11,11 @@ function isNativeFunction(input) {
 }
 
 function checkMinMaxArgs(args, min, max) {
-  dbg('checkMinMaxArgs()', { args, min, max });
   if(min != null && args.length < min) throw TOO_FEW_ARGS;
   if(max != null && args.length > max) throw TOO_MANY_ARGS;
 }
 
 function checkNativeFn(name, args) {
-  dbg('checkNativeFn()', { name, args });
   if(name === 'last') {
     checkMinMaxArgs(args, null, 0);
   } else if(/^(boolean|lang|ceiling|name|floor)$/.test(name)) {
@@ -34,7 +32,6 @@ function checkNativeFn(name, args) {
 }
 
 function preprocessNativeArgs(name, args) {
-  dbg('preprocessNativeArgs()', { name, args });
   if(name === 'number' && args.length) {
     if(args[0].t === 'arr') {
       args = [{t: 'num', v: args[0].v[0]}];
@@ -73,7 +70,3 @@ module.exports = {
   isNativeFunction,
   preprocessNativeArgs
 };
-
-function dbg(...args) {
-  console.log(...args.map(JSON.stringify));
-}

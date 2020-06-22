@@ -449,14 +449,13 @@ var openrosa_xpath_extensions = function(config) {
       }
     },
     selected: function(haystack, needle) {
-      dbg('selected()', { haystack, needle });
       return XPR.boolean(_str(haystack).split(' ').indexOf(_str(needle).trim()) !== -1);
     },
     'selected-at': function(list, index) {
       if(!index) throw new Error('No index provided for selected-at() [index=' + index + '; list=' + JSON.stringify(list));
       return XPR.string(_str(list).split(' ')[_int(index)] || '');
     },
-    sin: function(r) { return dbg('sin()', { r }) || XPR.number(Math.sin(asNumber(r))); },
+    sin: function(r) { return XPR.number(Math.sin(asNumber(r))); },
     sqrt: function(r) { return XPR.number(Math.sqrt(r.v)); },
     'string-length': function(r) { return XPR.number(asString(r).length); }, // TODO this isn't an extension... but maybe we should just support all functions - the core ones are quite simple(?)
     substr: function(string, startIndex, endIndex) {
@@ -473,7 +472,7 @@ var openrosa_xpath_extensions = function(config) {
       }
       return XPR.number(out);
     },
-    tan: function(r) { return dbg('tan()', { r }) || XPR.number(Math.tan(asNumber(r))); },
+    tan: function(r) { return XPR.number(Math.tan(asNumber(r))); },
     'true': function(rt) {
       if(rt === XPathResult.NUMBER_TYPE) return XPR.number(1);
       if(arguments.length>1) throw TOO_MANY_ARGS;
@@ -595,10 +594,6 @@ var openrosa_xpath_extensions = function(config) {
 
 module.exports = openrosa_xpath_extensions;
 
-function dbg(...args) {
-  console.log(...args.map(JSON.stringify));
-}
-
 /**
   * Used to cast arguments for "number functions" to javascript numbers, as per
   * https://www.w3.org/TR/1999/REC-xpath-19991116/#section-Number-Functions
@@ -606,7 +601,6 @@ function dbg(...args) {
   * Currently this has to support multiple input formats.
   */
 function asNumber(thing) {
-  dbg('asNumber()', { thing });
   let v;
   if(thing instanceof XPathResult) {
     throw new Error(`thing is an XPathResult!`);
@@ -616,7 +610,6 @@ function asNumber(thing) {
   } else if(thing.t) {
     v = thing.v;
   }
-  dbg('asNumber()', { v, num:+v });
   return +v;
 }
 
@@ -627,7 +620,6 @@ function asNumber(thing) {
   * Currently this has to support multiple input formats.
   */
 function asString(thing) {
-  dbg('asString()', { thing });
   let v;
   if(thing instanceof XPathResult) {
     throw new Error(`thing is an XPathResult!`);
@@ -639,6 +631,5 @@ function asString(thing) {
   } else if(typeof thing === 'string') {
     v = thing;
   } else throw new Error('asString() :: no idea how to handle: [' + typeof thing + ', ' + thing + ']');
-  dbg('asString()', { v });
   return v;
 }
