@@ -113,6 +113,7 @@ module.exports = function(wrapped, extensions) {
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/evaluate
    */
   const evaluate = this.evaluate = function(input, cN, nR, rT, _, contextSize=1, contextPosition=1) {
+//    return toExternalResult({ t:'str', v:'LOL: ' + input });
     let i, cur;
     const stack = [{ t:'root', tokens:[] }],
       peek = function() { return stack[stack.length-1]; },

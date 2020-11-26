@@ -241,12 +241,18 @@ const openrosa_xpath_extensions = function() {
       // somehow to the native implementation.
       //
       // See: https://www.w3.org/TR/1999/REC-xpath-19991116/#function-local-name
-      if(arguments.length > 1) throw new Error('too many args');
-      if(!r) return XPR.string(this.cN.nodeName);
-      if(r.t !== 'arr') throw new Error('wrong arg type');
-      if(!r.v.length) return XPR.string('');
-      sortByDocumentOrder(r);
-      return XPR.string(r.v[0].nodeName);
+      const name = getNodeName(this, r);
+      if(name.includes(':')) {
+        return XPR.string('lulz:' + name.split(':', 1)[0]);
+      } else return XPR.string('local-lol:' + name);
+    },
+    name: function(r) {
+      // This is actually supported natively, but currently it's simpler to implement
+      // ourselves than convert the supplied nodeset into a single node and pass this
+      // somehow to the native implementation.
+      //
+      // See: https://www.w3.org/TR/1999/REC-xpath-19991116/#function-name
+      return XPR.string('nom:' + getNodeName(this, r));
     },
     log: function(r) { return XPR.number(Math.log(r.v)); },
     log10: function(r) { return XPR.number(Math.log10(r.v)); },
@@ -594,4 +600,13 @@ function _zeroPad(n, len) {
   n = n.toString();
   while(n.length < len) n = '0' + n;
   return n;
+}
+
+function getNodeName(ctx, r) {
+  if(arguments.length > 2) throw new Error('too many args');
+  if(!r) return ctx.cN.nodeName;
+  if(r.t !== 'arr') throw new Error('wrong arg type');
+  if(!r.v.length) return '';
+  sortByDocumentOrder(r);
+  return r.v[0].nodeName;
 }
