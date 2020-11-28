@@ -2603,11 +2603,6 @@ jsonfile@^4.0.0:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-karma-babel-preprocessor@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/karma-babel-preprocessor/-/karma-babel-preprocessor-8.0.1.tgz#63b33cc7b5b3b5c7815ec453f7df58fb88345af1"
-  integrity sha512-5upyawNi3c7Gg6tPH1FWRVTmUijGf3v1GV4ScLM/2jKdDP18SlaKlUpu8eJrRI3STO8qK1bkqFcdgAA364nLYQ==
-
 karma-chrome-launcher@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/karma-chrome-launcher/-/karma-chrome-launcher-3.1.0.tgz#805a586799a4d05f4e54f72a204979f3f3066738"
