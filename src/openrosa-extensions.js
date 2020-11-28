@@ -610,7 +610,7 @@ function getNode(ctx, r) {
   if(!r) return isNodeish(ctx.cN) ? ctx.cN : null;
   if(r.t !== 'arr') throw new Error('wrong arg type');
   if(!r.v.length) return;
-  sortByDocumentOrder({ ...r, v:r.v.filter(isNodeish) });
+  sortByDocumentOrder({ t:'arr', v:r.v.filter(isNodeish) });
   return r.v[0];
 }
 
