@@ -1,7 +1,7 @@
 const { initDoc, nsResolver, filterAttributes,
   assert, assertThrow, assertNumberValue, assertStringValue } = require('../helpers');
 
-describe.only('native nodeset functions', () => {
+describe('native nodeset functions', () => {
 
   describe('last()', () => {
     let doc;
