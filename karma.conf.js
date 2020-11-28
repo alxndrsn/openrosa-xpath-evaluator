@@ -23,15 +23,10 @@ module.exports = function(config) {
     },
     reporters: [
       'mocha',
-      'coverage'
     ],
     webpack: require('./webpack.test.config.js'),
     webpackMiddleware: {
       watchOptions: { poll: 100 }
-    },
-    coverageReporter: {
-      type: 'lcov',
-      subdir: '.'
-    },
+    }
   });
 };
