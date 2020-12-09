@@ -7,9 +7,19 @@ module.exports = function(config) {
       'mocha',
     ],
     browsers: [
-      'ChromeHeadless',
-      'FirefoxHeadless',
+      'ChromeHeadlessNoSandbox',
+      'FirefoxHeadlessNoSandbox',
     ],
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox'],
+      },
+      FirefoxHeadlessNoSandbox: {
+        base: 'FirefoxHeadless',
+        flags: ['--no-sandbox'],
+      },
+    }
     files: [
       { pattern:'test/integration/index.js', watched:false },
     ],
