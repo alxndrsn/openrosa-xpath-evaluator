@@ -1,0 +1,12 @@
+name: CI Test
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:${{ matrix.node-version }}-alpine
+    strategy:
+      matrix:
+        node-version: [lts, 10, 12, 14]
+    steps:
+    - uses: actions/checkout@v2
+    - run: yarn && yarn test
