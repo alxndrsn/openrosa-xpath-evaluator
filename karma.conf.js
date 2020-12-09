@@ -6,9 +6,12 @@ module.exports = function(config) {
     frameworks: [
       'mocha',
     ],
-    browsers: [
+    browsers: process.env.CI ? [
       'ChromeHeadlessNoSandbox',
       'FirefoxHeadlessNoSandbox',
+    ] : [
+      'ChromeHeadless',
+      'FirefoxHeadless',
     ],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
@@ -19,7 +22,7 @@ module.exports = function(config) {
         base: 'FirefoxHeadless',
         flags: ['--no-sandbox'],
       },
-    }
+    },
     files: [
       { pattern:'test/integration/index.js', watched:false },
     ],

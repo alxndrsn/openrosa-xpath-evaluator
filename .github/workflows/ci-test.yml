@@ -7,3 +7,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: yarn && yarn test
+      env:
+        CI: true
