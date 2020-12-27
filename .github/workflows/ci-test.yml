@@ -11,6 +11,9 @@ jobs:
         args: yarn install
     - uses: ianwalter/puppeteer-container@v4.0.0
       with:
+        args: apk add firefox-esr
+    - uses: ianwalter/puppeteer-container@v4.0.0
+      with:
         args: firefox --version
     - uses: ianwalter/puppeteer-container@v4.0.0
       with:
