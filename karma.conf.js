@@ -7,7 +7,7 @@ module.exports = function(config) {
       'mocha',
     ],
     browsers: process.env.CI ? [
-      'ChromeHeadlessNoSandbox',
+      'FirefoxHeadlessNoSandbox',
     ] : [
       'ChromeHeadless',
       'FirefoxHeadless',
@@ -18,8 +18,8 @@ module.exports = function(config) {
         flags: ['--no-sandbox'],
       },
       FirefoxHeadlessNoSandbox: {
-        base: 'FirefoxHeadless',
-        flags: ['--no-sandbox'],
+        base: 'FirefoxNightlyHeadless',
+        flags: ['--no-sandbox', '-wait-for-browser'],
       },
     },
     files: [
