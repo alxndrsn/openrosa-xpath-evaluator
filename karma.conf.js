@@ -8,7 +8,6 @@ module.exports = function(config) {
     ],
     browsers: process.env.CI ? [
       'ChromeHeadlessNoSandbox',
-      'FirefoxHeadlessNoSandbox',
     ] : [
       'ChromeHeadless',
       'FirefoxHeadless',
