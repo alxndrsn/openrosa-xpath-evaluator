@@ -7,5 +7,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: yarn && yarn test
-      env:
-        CI: true
+      uses: ianwalter/puppeteer-container@v4.0.0
