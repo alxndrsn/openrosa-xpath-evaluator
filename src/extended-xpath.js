@@ -1,3 +1,4 @@
+const { dbg } = require('../test/dbg');
 const { handleOperation } = require('./utils/operation');
 const { preprocessNativeArgs } = require('./utils/native');
 const { toSnapshotResult } = require('./utils/result');
@@ -35,7 +36,7 @@ const UNION = 0b11000;
 // --- end operators
 
 const FUNCTION_NAME = /^[a-z]/;
-const D = 0xDEAD; // dead-end marker for the unevaluated side of a lazy expression
+const DEAD = 0xDEAD; // dead-end marker for the unevaluated side of a lazy expression
 
 module.exports = function(wrapped, extensions) {
   const
@@ -82,7 +83,7 @@ module.exports = function(wrapped, extensions) {
         case XPathResult.ANY_TYPE:
           // don't convert
           switch(r.t) {
-            case 'num':  return { resultType:XPathResult.NUMBER_TYPE,  numberValue:r.v,  stringValue:r.v.toString() };
+            case 'num':  return { resultType:XPathResult.NUMBER_TYPE,  numberValue:r.v,  stringValue:r.v.toString(), booleanValue:!!r.v }; // FIXME this change probably isn't necessary
             case 'str':  return { resultType:XPathResult.BOOLEAN_TYPE, stringValue:r.v };
             case 'bool': return { resultType:XPathResult.BOOLEAN_TYPE, booleanValue:r.v, stringValue:r.v.toString() };
             case 'arr':  return toSnapshotResult(r, XPathResult.UNORDERED_NODE_ITERATOR_TYPE);
@@ -121,20 +122,36 @@ module.exports = function(wrapped, extensions) {
       err = function(message) { throw new Error((message||'') + ' [stack=' + JSON.stringify(stack) + '] [cur=' + JSON.stringify(cur) + ']'); },
       newCurrent = function() { cur = { t:'?', v:'' }; },
       pushOp = function(t) {
+        dbg('pushOp()', { t:t === OR ? 'OR' : t === AND ? 'AND' : t });
         const peeked = peek();
         const { tokens } = peeked;
         let prev;
 
         if(t <= AND) {
           evalOps(t);
-          prev = asBoolean(tokens[tokens.length-1]);
+          //if(tokens.length !== 1) throw new Error(`surprise!  ${JSON.stringify({ tokens })}`);
+          prev = asBoolean(tokens[tokens.length-1]); // TODO could this always be tokens[0]?  doesn't seem like it - try commenting out the line above
           if((t === OR ? prev : !prev) && peeked.t !== 'fn') peeked.dead = true;
         }
 
         tokens.push({ t:'op', v:t });
 
-        if(t <= AND) {
-          if(t === OR ? prev : !prev) tokens.push(D);
+        if(t === AND) {
+          if(!prev) dbg('Pushing DEAD...') || tokens.push(DEAD);
+        } else if(t === OR) {
+          if(prev) dbg('Pushing DEAD...') || tokens.push(DEAD);
+          else {
+            dbg('something clever here?', { tokens });
+            //tokens.splice(0, 2); // this should just delete everything in tokens
+            //peeked.tokens = []; // this would be an alternative approach, but risks invalidating references to .tokens stored outside this function
+
+            // the token-ditching may seem clever, but we need to co-erce the remainder of the expression into a boolean...
+          }
+        }
+
+        if(false && t <= AND) {
+          dbg('pushOp()', '', { prev });
+          if(t === OR ? prev : !prev) dbg('Pushing DEAD...') || tokens.push(DEAD);
         }
 
         newCurrent();
@@ -183,8 +200,9 @@ module.exports = function(wrapped, extensions) {
         return toInternalResult(wrapped.evaluate(argString + ')', cN, nR, XPathResult.ANY_TYPE, null));
       },
       evalOp = function(lhs, op, rhs) {
-        if(op > AND && (lhs === D || rhs === D)) {
-          return D;
+        dbg('evalOp()', { lhs, op, rhs, stack });
+        if(op > AND && (lhs === DEAD || rhs === DEAD)) {
+          return DEAD;
         }
         if(extendedProcessors.handleInfix) {
           let res = extendedProcessors.handleInfix(err, lhs, op, rhs);
@@ -201,7 +219,7 @@ module.exports = function(wrapped, extensions) {
 
         if(tokens.length < 2) return;
 
-        if(tokens[2] === D && tokens[1].v >= lastOp) {
+        if(tokens[2] === DEAD && tokens[1].v >= lastOp) {
           const endExpr = tokens.indexOf(',', 2);
           tokens.splice(0, endExpr === -1 ? tokens.length : endExpr, { t:'bool', v:asBoolean(tokens[0]) });
         }
@@ -258,7 +276,7 @@ module.exports = function(wrapped, extensions) {
         if(peeked.t === 'fn') {
           const { tokens } = peeked;
           for(let i=tokens.length-1; i>=0 && tokens[i] !== ','; --i) {
-            if(tokens[i] === D) {
+            if(tokens[i] === DEAD) {
               return true;
             }
           }
@@ -299,7 +317,7 @@ module.exports = function(wrapped, extensions) {
           } else {
             const head = peek();
             const { tokens } = head;
-            if(head.dead || tokens[2] === D) {
+            if(head.dead || tokens[2] === DEAD) {
               newCurrent();
               continue;
             }
@@ -378,7 +396,7 @@ module.exports = function(wrapped, extensions) {
 
           if(cur.t !== 'fn') err('")" outside function!');
           if(peek().dead) {
-            peek().tokens.push(D);
+            peek().tokens.push(DEAD);
           } else if(isDeadFnArg()) {
             /* do nothing */
           } else if(cur.v) {
