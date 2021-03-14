@@ -122,9 +122,9 @@ module.exports = function(wrapped, extensions) {
       err = function(message) { throw new Error((message||'') + ' [stack=' + JSON.stringify(stack) + '] [cur=' + JSON.stringify(cur) + ']'); },
       newCurrent = function() { cur = { t:'?', v:'' }; },
       pushOp = function(t) {
-        dbg('pushOp()', { t:t === OR ? 'OR' : t === AND ? 'AND' : t });
         const peeked = peek();
         const { tokens } = peeked;
+        dbg('pushOp()', { t:t === OR ? 'OR' : t === AND ? 'AND' : t, tokens });
         let prev;
 
         if(t <= AND) {
@@ -137,9 +137,9 @@ module.exports = function(wrapped, extensions) {
         tokens.push({ t:'op', v:t });
 
         if(t === AND) {
-          if(!prev) dbg('Pushing DEAD...') || tokens.push(DEAD);
+          if(!prev) dbg('Pushing DEAD...', { tokens }) || tokens.push(DEAD);
         } else if(t === OR) {
-          if(prev) dbg('Pushing DEAD...') || tokens.push(DEAD);
+          if(prev)  dbg('Pushing DEAD...', { tokens }) || tokens.push(DEAD);
           else {
             dbg('something clever here?', { tokens });
             //tokens.splice(0, 2); // this should just delete everything in tokens
@@ -396,7 +396,10 @@ module.exports = function(wrapped, extensions) {
 
           if(cur.t !== 'fn') err('")" outside function!');
           if(peek().dead) {
-            peek().tokens.push(DEAD);
+            const { tokens } = peek();
+            dbg('Maybe pushing dead cos of brackets...', { tokens:peek().tokens });
+            if(tokens[tokens.length - 1] !== DEAD) tokens.push(DEAD);
+            dbg('                             (pushed)', { tokens:peek().tokens });
           } else if(isDeadFnArg()) {
             /* do nothing */
           } else if(cur.v) {
