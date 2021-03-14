@@ -8,7 +8,7 @@ module.exports = function(config) {
     ],
     browsers: [
       'ChromeHeadless',
-      'FirefoxHeadless',
+//      'FirefoxHeadless',
     ],
     files: [
       { pattern:'test/integration/index.js', watched:false },
